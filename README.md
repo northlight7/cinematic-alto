@@ -6,7 +6,14 @@ An alpine journey that climbs through a mountain landscape before opening into a
 
 **[Visit the live site ↗](https://northlight7.github.io/cinematic-alto/)** · [Project notes & screenshots](https://github.com/northlight7/web-design-portfolio/tree/main/projects/alto) · [Full portfolio](https://northlight7.github.io/web-design-portfolio/)
 
+![ALTO travel concept with a snow-covered mountain, a warm paper reading panel and an interactive route atlas.](preview.webp)
+
+<details>
+<summary>Play animated scroll preview (7 seconds)</summary>
+
 ![Animated scroll preview of ALTO Expeditions](preview.gif)
+
+</details>
 
 ## What to try
 

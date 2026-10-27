@@ -20,7 +20,7 @@ export function stage({background=null,environment=false,poster=.5,fov=40,far=25
  let env
  if(environment){const pm=new T.PMREMGenerator(renderer),room=new RoomEnvironment();env=pm.fromScene(room,.05);scene.environment=env.texture;room.dispose();pm.dispose()}
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');let paused=reduced.matches,p=0,target=0,time=0,raf=0,last=0,visible=true,fn=()=>{},dirty=3,initialized=false,dead=false,contextLost=false
- function status(){motion.setAttribute('aria-pressed',String(paused));motion.textContent=paused?'Motion off':'Motion on';document.body.classList.toggle('motion-off',paused)}
+ function status(){motion.setAttribute('aria-pressed',String(paused));motion.textContent=paused?'Motion off':'Motion on';document.body.classList.toggle('motion-off',paused);document.documentElement.classList.toggle('motion-off',paused)}
  function wake(){dirty=3;if(!raf&&!dead&&!document.hidden&&visible&&!contextLost)raf=requestAnimationFrame(loop)}
  function measure(){const box=host.getBoundingClientRect();renderer.setSize(box.width,box.height,false);camera.aspect=box.width/box.height;camera.updateProjectionMatrix();scroll();p=target;wake()}
  function scroll(){const r=story.getBoundingClientRect();target=clamp(-r.top/Math.max(1,story.offsetHeight-host.clientHeight));visible=r.bottom>0&&r.top<innerHeight;if(!initialized){p=target;initialized=true}wake()}

@@ -3,3 +3,5 @@
 .route-label{background:#102d3bed;padding:25px 29px;border-left:2px solid #d5f36d;text-shadow:none}.route-label h2{font-size:clamp(38px,4vw,64px)}@media(max-width:700px){.route-label{max-width:315px;padding:20px 22px;top:16%}.route-label h2{font-size:36px}.route-label p{font-size:17px}}
 
 @media(max-width:360px){.nav nav{gap:12px;font-size:13px}.nav button{font-size:11px;padding:8px 9px}.nav .wordmark{font-size:29px}}
+
+@media(max-width:700px){.hero-note{bottom:155px}}

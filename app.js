@@ -1,4 +1,4 @@
-import {T,stage,mesh,material,clamp,lerp,smooth,span,ui} from './core.js'
+import {T,stage,mesh,material,clamp,lerp,smooth,span,ui} from './core.js?v=8d37539694e3'
 ui()
 // A deterministic ridged heightfield. Camera travel changes the landscape's silhouette.
 const hash=(x,y)=>{const n=Math.sin(x*127.1+y*311.7)*43758.5453123;return n-Math.floor(n)}

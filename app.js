@@ -6,9 +6,29 @@ function noise(x,y){const ix=Math.floor(x),iy=Math.floor(y),fx=smooth(x-ix),fy=s
 function height(x,z){const ridge=Math.exp(-Math.pow((x-4*Math.sin(z*.11))/13,2));const ridge2=Math.exp(-Math.pow((x+20+4*Math.cos(z*.1))/11,2));let h=2.2+ridge*(8+5*Math.sin(z*.07+1.3))+ridge2*7;let amp=3.2,f=.12;for(let i=0;i<5;i++){h+=(1-Math.abs(noise(x*f+51,z*f+39)*2-1))*amp;f*=2.12;amp*=.48}h-=5*Math.exp(-Math.pow((x-14-4*Math.sin(z*.08))/5,2));return Math.max(.5,h)}
 const paths=[[[16,27],[13,18],[9,12],[6,9],[3,4],[1,-2],[-2,-9],[0,-17]],[[21,26],[21,14],[16,7],[18,-1],[16,-8],[18,-19]],[[27,23],[21,19],[17,10],[10,9],[5,3],[1,-2]]]
 const routeData=[['The Ridge Line','Three days of climbing from sheltered meadows to a high ridge. The imagined route pauses at a mountain hut before a long, open walk above the cloud line.','M100 510Q400 450 290 320T430 110',[430,110]],['The Quiet Valley','A slower two-day walk beside the valley’s river. Stop in open clearings, sit by the water and follow the path back as the evening light turns the peaks blue.','M100 510Q190 400 165 310T300 110',[300,110]],['The First Light','Leave in the blue hour for a short, purposeful ascent. Reach the overlook as the first light arrives, then return to the valley for a long breakfast.','M100 510Q400 490 425 350T470 210',[470,210]]]
+const ALT=(h)=>1480+(h-.5)/(16-.5)*2050
+// The atlas profile is sampled from the same height field the scene stands on, so the
+// drawing and the mountain cannot disagree.
+const profileData=paths.map(pts=>{const curve=new T.CatmullRomCurve3(pts.map(([x,z])=>new T.Vector3(x,0,z)),false,'catmullrom',.45);const out=[];for(let i=0;i<=90;i++){const q=curve.getPoint(i/90);out.push(height(q.x,q.z))}return out})
+const profileMin=Math.min(...profileData.flat()),profileMax=Math.max(...profileData.flat())
+const profileSvg=document.querySelector('#profile-svg'),profileArea=document.querySelector('#profile-area'),profileLine=document.querySelector('#profile-line'),profileDot=document.querySelector('#profile-dot'),profileText=document.querySelector('#profile-text')
+function drawProfile(i){const vals=profileData[i],W=560,H=78,pad=6
+ const lo=profileMin,hi=profileMax,span2=Math.max(.001,hi-lo)
+ const pt=(k,v)=>[k/(vals.length-1)*W,H-pad-(v-lo)/span2*(H-pad*2)]
+ let d='',area=''
+ vals.forEach((v,k)=>{const [x,y]=pt(k,v);d+=(k?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)})
+ area=d+'L'+W+' '+H+'L0 '+H+'Z'
+ profileLine.setAttribute('d',d);profileArea.setAttribute('d',area)
+ const [ex,ey]=pt(vals.length-1,vals[vals.length-1]);profileDot.setAttribute('cx',ex.toFixed(1));profileDot.setAttribute('cy',ey.toFixed(1))
+ document.querySelector('#profile-start').textContent=Math.round(ALT(vals[0])).toLocaleString('en')+' m'
+ document.querySelector('#profile-end').textContent=Math.round(ALT(vals[vals.length-1])).toLocaleString('en')+' m'
+ const gain=Math.round(ALT(vals[vals.length-1])-ALT(vals[0]))
+ profileText.textContent=routeData[i][0]+': ascent profile, '+Math.round(ALT(vals[0])).toLocaleString('en')+' metres to '+Math.round(ALT(vals[vals.length-1])).toLocaleString('en')+' metres, '+(gain>=0?'a gain':'a drop')+' of '+Math.abs(gain).toLocaleString('en')+' metres.'
+ profileSvg.setAttribute('aria-label',routeData[i][0]+' ascent profile')}
 let selected=0,hovered=-1
 const buttons=[...document.querySelectorAll('[data-route]')]
-function select(i){selected=i;buttons.forEach((b,k)=>{b.classList.toggle('selected',k===i);b.setAttribute('aria-pressed',String(k===i))});document.querySelector('#map-route').setAttribute('d',routeData[i][2]);const end=document.querySelector('#map-end');end.setAttribute('cx',routeData[i][3][0]);end.setAttribute('cy',routeData[i][3][1]);document.querySelector('#map-name').textContent=routeData[i][0];document.querySelector('#route-live').textContent=routeData[i][0]+' selected.';world?.wake()}
+function select(i){selected=i;buttons.forEach((b,k)=>{b.classList.toggle('selected',k===i);b.setAttribute('aria-pressed',String(k===i))});document.querySelector('#map-route').setAttribute('d',routeData[i][2]);const end=document.querySelector('#map-end');end.setAttribute('cx',routeData[i][3][0]);end.setAttribute('cy',routeData[i][3][1]);document.querySelector('#map-name').textContent=routeData[i][0];document.querySelector('#route-live').textContent=routeData[i][0]+' selected.';drawProfile(i);world?.wake()}
+drawProfile(0)
 buttons.forEach((b,i)=>{b.addEventListener('click',()=>select(i));b.addEventListener('pointerenter',()=>{hovered=i;world?.wake()});b.addEventListener('pointerleave',()=>{hovered=-1;world?.wake()});b.addEventListener('focus',()=>{hovered=i;world?.wake()});b.addEventListener('blur',()=>{hovered=-1;world?.wake()})})
 document.querySelector('#plan').addEventListener('click',()=>{document.querySelector('#note-title').textContent=routeData[selected][0];document.querySelector('#note-copy').textContent=routeData[selected][1];document.querySelector('#field-note').showModal()})
 const contours=document.querySelector('#contours');for(let i=0;i<27;i++){const p=document.createElementNS('http://www.w3.org/2000/svg','path');let d='';for(let j=0;j<=130;j++){const a=j/130*Math.PI*2,r=45+i*10+(Math.sin(a*4+i*.18)+Math.cos(a*7+i*.23))*i*1.4;const x=355+Math.cos(a)*r*.8,y=270+Math.sin(a)*r*1.14;d+=(j?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)}p.setAttribute('d',d+'Z');contours.append(p)}

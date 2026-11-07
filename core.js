@@ -13,7 +13,9 @@ export function tex(draw,w=1024,h=w){const c=document.createElement('canvas');c.
 export function stage({background=null,environment=false,poster=.5,fov=40,far=250}={}){
  const host=document.querySelector('.scene'),story=document.querySelector('.journey'),canvas=host.querySelector('canvas'),motion=document.querySelector('[data-motion]')
  let renderer
- try{renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'})}catch(e){document.body.classList.add('no-webgl');host.querySelector('.fallback').hidden=false;motion.hidden=true;throw e}
+ let rendererError=null
+ for(let attempt=0;attempt<2&&!renderer;attempt++){try{renderer=new T.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'})}catch(e){rendererError=e}}
+ if(!renderer){document.body.classList.add('no-webgl');const fb=host.querySelector('.fallback');if(fb)fb.hidden=false;if(motion)motion.hidden=true;throw rendererError}
  renderer.setPixelRatio(Math.min(devicePixelRatio,innerWidth<700?1.25:1.5));renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05
  const scene=new T.Scene();if(background)scene.background=new T.Color(background)
  const camera=new T.PerspectiveCamera(fov,1,.05,far)
